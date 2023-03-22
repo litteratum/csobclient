@@ -20,9 +20,11 @@ class PaymentMethod(Enum):
 
 
 @dataclass(frozen=True)
-class PaymentInitInfo:
+class PaymentInfo:
     """Payment information."""
 
     pay_id: str
-    payment_status: Optional[int]
-    customer_code: Optional[str]
+    payment_status: Optional[int] = None
+    customer_code: Optional[str] = None
+    status_detail: Optional[str] = None
+    auth_code: Optional[str] = None

@@ -40,3 +40,17 @@ class HTTPClient(ABC):
         :raises HTTPTimeoutError: if request timeouts
         :raises HTTPRequestError: for any other exception
         """
+
+    @abstractmethod
+    def get(self, url: str) -> HTTPResponse:
+        """GET request.
+
+        This method must send GET request to the `url` and return JSON
+        response.
+
+        :param url: API method URL
+
+        :raises HTTPConnectionError: if connection fails
+        :raises HTTPTimeoutError: if request timeouts
+        :raises HTTPRequestError: for any other exception
+        """

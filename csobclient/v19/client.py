@@ -1,18 +1,17 @@
 """Client."""
-from collections import OrderedDict
 from enum import Enum
 from typing import Optional
 
 from .currency import Currency
 from .customer import CustomerData
 from .order import OrderData
-from .payment import PaymentMethod, PaymentOperation, PaymentInitInfo
+from .payment import PaymentMethod, PaymentOperation, PaymentInfo
 from .cart import Cart, CartItem
 from .merchant import _MerchantData
 from .webpage import WebPageAppearanceConfig
 from .dttm import get_dttm, get_payment_expiry
-from .signature import sign
-from .http import RequestsHTTPClient
+from .signature import mk_payload, verify, mk_url
+from .http import RequestsHTTPClient, HTTPClient
 
 
 class ReturnMethod(Enum):
@@ -25,20 +24,16 @@ class ReturnMethod(Enum):
 class APIError(Exception):
     """API error."""
 
-    def __init__(
-        self, code: int, message: str, status_detail: Optional[str] = None
-    ) -> None:
+    def __init__(self, code: int, message: str) -> None:
         """Init API error.
 
         :param code: error code
         :message: error message
         :status_detail: status detail
         """
-        message = f"{code}: {message}"
-        if status_detail:
-            message = f"{message}. Details: {status_detail}"
-
-        super().__init__(message)
+        self.code = code
+        self.message = message
+        super().__init__(f"{self.code}: {self.message}")
 
 
 class Client:
@@ -47,21 +42,17 @@ class Client:
     def __init__(
         self,
         merchant_id: str,
-        base_url: str,
         private_key_file: str,
-        csob_public_key_file: str,
+        public_key_file: str,
+        base_url: str = "https://iapi.iplatebnibrana.csob.cz/api/v1.9",
+        http_client: HTTPClient = RequestsHTTPClient(),
     ) -> None:
         self.merchant_id = merchant_id
         self.base_url = base_url.rstrip("/")
         self.private_key_file = private_key_file
-        self.csob_public_key_file = csob_public_key_file
+        self.public_key_file = public_key_file
 
-        self._http_client = RequestsHTTPClient()
-
-    def _mk_payload(self, pairs):
-        payload = OrderedDict([(k, v) for k, v in pairs if v])
-        payload["signature"] = sign(payload, self.private_key_file)
-        return payload
+        self._http_client = http_client
 
     def init_payment(
         self,
@@ -81,7 +72,7 @@ class Client:
         customer_id: Optional[str] = None,
         payment_expiry: Optional[int] = None,
         page_appearance: WebPageAppearanceConfig = WebPageAppearanceConfig(),
-    ) -> PaymentInitInfo:
+    ) -> PaymentInfo:
         """Init payment."""
         if not (300 <= ttl_sec <= 1800):
             raise ValueError('"ttl_sec" must be in [300, 1800]')
@@ -94,7 +85,8 @@ class Client:
 
         cart = cart or Cart([CartItem("Payment", 1, total_amount)])
 
-        payload = self._mk_payload(
+        payload = mk_payload(
+            self.private_key_file,
             pairs=(
                 ("merchantId", self.merchant_id),
                 ("orderNo", order_no),
@@ -122,17 +114,57 @@ class Client:
             f"{self.base_url}/payment/init", payload
         )
 
-        # TODO: validate response
-
         if response.http_success and response.data["resultCode"] == 0:
-            return PaymentInitInfo(
+            verify(response.data, self.public_key_file)
+            return PaymentInfo(
                 response.data["payId"],
                 response.data.get("paymentStatus"),
                 response.data.get("customerCode"),
             )
 
         raise APIError(
-            response.data["resultCode"],
-            response.data["resultMessage"],
-            response.data.get("statusDetail"),
+            response.data["resultCode"], response.data["resultMessage"]
+        )
+
+    def req_payload(self, pay_id, **kwargs):
+        pairs = (
+            ("merchantId", self.merchant_id),
+            ("payId", pay_id),
+            ("dttm", get_dttm()),
+        )
+        for k, v in kwargs.items():
+            if v is not None:
+                pairs += ((k, v),)
+        return mk_payload(keyfile=self.private_key_file, pairs=pairs)
+
+    def get_payment_process_url(self, pay_id: str) -> str:
+        """Build payment URL.
+
+        :param pay_id: pay_id obtained from `payment_init`
+        :return: url to process payment
+        """
+        return mk_url(
+            f"{self.base_url}/payment/process/",
+            payload=self.req_payload(pay_id=pay_id),
+        )
+
+    def get_payment_status(self, pay_id: str):
+        """Request payment status information."""
+        url = mk_url(
+            f"{self.base_url}/payment/status/",
+            payload=self.req_payload(pay_id=pay_id),
+        )
+        response = self._http_client.get(url=url)
+
+        if response.http_success and response.data["resultCode"] == 0:
+            verify(response.data, self.public_key_file)
+            return PaymentInfo(
+                response.data["payId"],
+                response.data.get("paymentStatus"),
+                auth_code=response.data.get("authCode"),
+                status_detail=response.data.get("statusDetail"),
+            )
+
+        raise APIError(
+            response.data["resultCode"], response.data["resultMessage"]
         )

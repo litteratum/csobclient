@@ -30,3 +30,14 @@ class RequestsHTTPClient(HTTPClient):
             raise HTTPTimeoutError(exc) from exc
         except requests.RequestException as exc:
             raise HTTPRequestError(exc) from exc
+
+    def get(self, url: str) -> HTTPResponse:
+        try:
+            response = self._session.get(url, timeout=_DEFAULT_TIMEOUT)
+            return HTTPResponse(response.ok, response.json())
+        except ConnectionError as exc:
+            raise HTTPConnectionError(exc) from exc
+        except requests.Timeout as exc:
+            raise HTTPTimeoutError(exc) from exc
+        except requests.RequestException as exc:
+            raise HTTPRequestError(exc) from exc

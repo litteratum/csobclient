@@ -1,6 +1,8 @@
 """Module for dealing with the signature."""
+import binascii
 from base64 import b64decode, b64encode
 from collections import OrderedDict
+from urllib.parse import quote_plus, urljoin
 from .dttm import decode_dttm
 
 from Crypto.Hash import SHA256
@@ -41,6 +43,18 @@ def mk_msg_for_sign(payload):
     return msg.encode("utf-8")
 
 
+def mk_url(url: str, payload=None):
+    if payload is None:
+        return url
+    return urljoin(url, "/".join(map(quote_plus, payload.values())))
+
+
+def mk_payload(keyfile, pairs):
+    payload = OrderedDict([(k, v) for k, v in pairs if v is not None])
+    payload["signature"] = sign(payload, keyfile)
+    return payload
+
+
 def sign(payload, keyfile):
     msg = mk_msg_for_sign(payload)
     key = RSA.importKey(open(keyfile).read())
@@ -54,7 +68,13 @@ def _verify(payload: dict, signature: str, pubkeyfile: str):
     key = RSA.importKey(open(pubkeyfile).read())
     h = SHA256.new(msg)
     verifier = PKCS1_v1_5.new(key)
-    return verifier.verify(h, b64decode(signature))
+
+    try:
+        sig_as_bytes = b64decode(signature)
+    except binascii.Error as exc:
+        raise InvalidSignatureError(f"Failed to decode base64: {exc}") from exc
+
+    return verifier.verify(h, sig_as_bytes)
 
 
 def verify(json_data: dict, key) -> OrderedDict:
