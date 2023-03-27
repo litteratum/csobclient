@@ -3,15 +3,16 @@ from enum import Enum
 from typing import Optional
 
 from .currency import Currency
-from .customer import CustomerData
-from .order import OrderData
 from .payment import PaymentMethod, PaymentOperation, PaymentInfo
 from .cart import Cart, CartItem
 from .merchant import _MerchantData
 from .webpage import WebPageAppearanceConfig
 from .dttm import get_dttm, get_payment_expiry
 from .signature import mk_payload, verify, mk_url
-from .http import RequestsHTTPClient, HTTPClient
+from .http import RequestsHTTPClient, HTTPClient, HTTPResponse
+
+# from .customer import CustomerData
+# from .order import OrderData
 
 
 class ReturnMethod(Enum):
@@ -66,8 +67,8 @@ class Client:
         close_payment: bool = True,
         ttl_sec: int = 600,
         cart: Optional[Cart] = None,
-        customer: Optional[CustomerData] = None,
-        order: Optional[OrderData] = None,
+        # customer: Optional[CustomerData] = None,
+        # order: Optional[OrderData] = None,
         merchant_data: Optional[bytes] = None,
         customer_id: Optional[str] = None,
         payment_expiry: Optional[int] = None,
@@ -99,9 +100,9 @@ class Client:
                 ("returnUrl", return_url),
                 ("returnMethod", return_method.value),
                 ("cart", cart.as_json()),
-                ("customer", customer),  # TODO: add as_json()
-                ("order", order),  # TODO: add as_json()
-                ("merchantData", _MerchantData(merchant_data).value),
+                ("customer", None),  # TODO: add support
+                ("order", None),  # TODO: add support
+                ("merchantData", _MerchantData(merchant_data).base64),
                 ("customerId", customer_id),
                 ("language", page_appearance.language.value),
                 ("ttlSec", ttl_sec),
@@ -113,18 +114,7 @@ class Client:
         response = self._http_client.post_json(
             f"{self.base_url}/payment/init", payload
         )
-
-        if response.http_success and response.data["resultCode"] == 0:
-            verify(response.data, self.public_key_file)
-            return PaymentInfo(
-                response.data["payId"],
-                response.data.get("paymentStatus"),
-                response.data.get("customerCode"),
-            )
-
-        raise APIError(
-            response.data["resultCode"], response.data["resultMessage"]
-        )
+        return self._get_payment_info(response)
 
     def req_payload(self, pay_id, **kwargs):
         pairs = (
@@ -155,15 +145,27 @@ class Client:
             payload=self.req_payload(pay_id=pay_id),
         )
         response = self._http_client.get(url=url)
+        return self._get_payment_info(response)
 
+    def process_gateway_return(self, datadict: dict) -> PaymentInfo:
+        """Process gateway return."""
+        data = {}
+
+        for key in datadict:
+            data[key] = (
+                int(datadict[key])
+                if key in ("resultCode", "paymentStatus")
+                else datadict[key]
+            )
+
+        return self._get_payment_info(
+            HTTPResponse(http_success=True, data=data)
+        )
+
+    def _get_payment_info(self, response: HTTPResponse) -> PaymentInfo:
         if response.http_success and response.data["resultCode"] == 0:
             verify(response.data, self.public_key_file)
-            return PaymentInfo(
-                response.data["payId"],
-                response.data.get("paymentStatus"),
-                auth_code=response.data.get("authCode"),
-                status_detail=response.data.get("statusDetail"),
-            )
+            return PaymentInfo.from_response(response.data)
 
         raise APIError(
             response.data["resultCode"], response.data["resultMessage"]

@@ -3,7 +3,6 @@ import binascii
 from base64 import b64decode, b64encode
 from collections import OrderedDict
 from urllib.parse import quote_plus, urljoin
-from .dttm import decode_dttm
 
 from Crypto.Hash import SHA256
 from Crypto.PublicKey import RSA
@@ -77,8 +76,8 @@ def _verify(payload: dict, signature: str, pubkeyfile: str):
     return verifier.verify(h, sig_as_bytes)
 
 
-def verify(json_data: dict, key) -> OrderedDict:
-    """Verify data signature."""
+def verify(json_data: dict, key: str) -> None:
+    """Verify data."""
     signature = json_data.pop("signature", None)
     if not signature:
         raise InvalidSignatureError("Empty signature")
@@ -90,8 +89,3 @@ def verify(json_data: dict, key) -> OrderedDict:
 
     if not _verify(payload, signature, key):
         raise InvalidSignatureError("Invalid signature")
-
-    if "dttm" in payload:
-        payload["dttime"] = decode_dttm(payload["dttm"])
-
-    return payload
