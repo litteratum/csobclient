@@ -4,20 +4,15 @@ from typing import Callable, Optional
 from csobclient.v19.http import HTTPClient, HTTPResponse
 
 
-def get_fake_http_client(
-    get: Optional[Callable] = None, post_json: Optional[Callable] = None
-):
+def get_fake_http_client(request: Optional[Callable] = None):
     """Return fake HTTP client."""
-    if get is None:
-        get = lambda url: HTTPResponse(True, {})
-    if post_json is None:
-        post_json = lambda url, data: HTTPResponse(True, {})
+    if request is None:
+        request = lambda *_, **__: HTTPResponse(True, {})
 
     class _FakeHTTPClient(HTTPClient):
-        def post_json(self, url: str, data: dict) -> HTTPResponse:
-            return post_json(url, data)
-
-        def get(self, url: str) -> HTTPResponse:
-            return get(url)
+        def request(
+            self, url: str, method: str = "post", json: Optional[dict] = None
+        ) -> HTTPResponse:
+            return request(url, method, json)
 
     return _FakeHTTPClient()

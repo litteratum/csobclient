@@ -1,4 +1,5 @@
 """HTTP client which uses `requests` under the hood."""
+from typing import Optional
 import requests
 
 from .client import (
@@ -18,22 +19,13 @@ class RequestsHTTPClient(HTTPClient):
     def __init__(self) -> None:
         self._session = requests.Session()
 
-    def post_json(self, url: str, data: dict) -> HTTPResponse:
+    def request(
+        self, url: str, method: str = "post", json: Optional[dict] = None
+    ) -> HTTPResponse:
         try:
-            response = self._session.post(
-                url, json=data, timeout=_DEFAULT_TIMEOUT
+            response = getattr(self._session, method.lower())(
+                url, json=json, timeout=_DEFAULT_TIMEOUT
             )
-            return HTTPResponse(response.ok, response.json())
-        except ConnectionError as exc:
-            raise HTTPConnectionError(exc) from exc
-        except requests.Timeout as exc:
-            raise HTTPTimeoutError(exc) from exc
-        except requests.RequestException as exc:
-            raise HTTPRequestError(exc) from exc
-
-    def get(self, url: str) -> HTTPResponse:
-        try:
-            response = self._session.get(url, timeout=_DEFAULT_TIMEOUT)
             return HTTPResponse(response.ok, response.json())
         except ConnectionError as exc:
             raise HTTPConnectionError(exc) from exc

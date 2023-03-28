@@ -10,7 +10,7 @@ from csobclient.v19.http import RequestsHTTPClient, HTTPTimeoutError
 def test_success_post_json():
     """Test successful post_json."""
     responses.add(responses.POST, "https://example.com", json={"k": "v"})
-    response = RequestsHTTPClient().post_json("https://example.com", {})
+    response = RequestsHTTPClient().request("https://example.com", json={})
     assert response.http_success
     assert response.data == {"k": "v"}
 
@@ -21,7 +21,7 @@ def test_unsuccessful_post_json():
     responses.add(
         responses.POST, "https://example.com", json={"k": "v"}, status=400
     )
-    response = RequestsHTTPClient().post_json("https://example.com", {})
+    response = RequestsHTTPClient().request("https://example.com", json={})
     assert response.http_success is False
     assert response.data == {"k": "v"}
 
@@ -37,13 +37,13 @@ def test_post_json_timeout():
     )
 
     with pytest.raises(HTTPTimeoutError):
-        RequestsHTTPClient().post_json("https://example.com", {})
+        RequestsHTTPClient().request("https://example.com", json={})
 
 
 @responses.activate
 def test_get_ok():
     """Test successful get."""
     responses.add(responses.GET, "https://example.com", json={"k": "v"})
-    response = RequestsHTTPClient().get("https://example.com")
+    response = RequestsHTTPClient().request("https://example.com", "get")
     assert response.http_success
     assert response.data == {"k": "v"}

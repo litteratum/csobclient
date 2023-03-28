@@ -13,7 +13,7 @@ from . import get_fake_http_client
 def test_success():
     """Test for the successful payment init."""
 
-    def get(url: str) -> HTTPResponse:
+    def _get(url: str, *_, **__) -> HTTPResponse:
         assert "my_ID" in url
         return HTTPResponse(
             http_success=True,
@@ -34,7 +34,7 @@ def test_success():
         "id",
         KEY_PATH,
         KEY_PATH,
-        http_client=get_fake_http_client(get=get),
+        http_client=get_fake_http_client(request=_get),
     )
     client.get_payment_status("my_ID")
 
@@ -42,7 +42,7 @@ def test_success():
 def test_api_error():
     """Test for the successful payment init."""
 
-    def _get(url: str) -> HTTPResponse:
+    def _get(*_, **__) -> HTTPResponse:
         return HTTPResponse(
             http_success=False,
             data={
@@ -55,7 +55,7 @@ def test_api_error():
         "id",
         KEY_PATH,
         KEY_PATH,
-        http_client=get_fake_http_client(get=_get),
+        http_client=get_fake_http_client(request=_get),
     )
 
     with pytest.raises(csobclient.v19.client.APIError):

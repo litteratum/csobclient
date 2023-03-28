@@ -66,7 +66,7 @@ def test_to_long_merchant_data():
 def test_success():
     """Test for the successful payment init."""
 
-    def post_json(url: str, data: dict) -> HTTPResponse:
+    def _post_json(*_, **__) -> HTTPResponse:
         return HTTPResponse(
             http_success=True,
             data=mk_payload(
@@ -85,7 +85,7 @@ def test_success():
         "id",
         KEY_PATH,
         KEY_PATH,
-        http_client=get_fake_http_client(post_json=post_json),
+        http_client=get_fake_http_client(request=_post_json),
     )
     client.init_payment(
         "oder_no",
@@ -102,7 +102,7 @@ def test_api_error():
     API error.
     """
 
-    def post_json(url: str, data: dict) -> HTTPResponse:
+    def _post_json(*_, **__) -> HTTPResponse:
         return HTTPResponse(
             http_success=True,
             data={
@@ -115,7 +115,7 @@ def test_api_error():
         "id",
         KEY_PATH,
         KEY_PATH,
-        http_client=get_fake_http_client(post_json=post_json),
+        http_client=get_fake_http_client(request=_post_json),
     )
 
     with pytest.raises(csobclient.v19.client.APIError):
@@ -133,7 +133,7 @@ def test_api_error():
 def test_invalid_signature(signature: str):
     """Test for the invalid response signature."""
 
-    def post_json(url: str, data: dict) -> HTTPResponse:
+    def _post_json(*_, **__) -> HTTPResponse:
         return HTTPResponse(
             http_success=True,
             data={"signature": signature, "resultCode": 0},
@@ -143,7 +143,7 @@ def test_invalid_signature(signature: str):
         "id",
         KEY_PATH,
         KEY_PATH,
-        http_client=get_fake_http_client(post_json=post_json),
+        http_client=get_fake_http_client(request=_post_json),
     )
 
     with pytest.raises(InvalidSignatureError):

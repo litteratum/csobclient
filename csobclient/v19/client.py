@@ -111,20 +111,20 @@ class Client:
                 ("customExpiry", get_payment_expiry(payment_expiry)),
             ),
         )
-        response = self._http_client.post_json(
-            f"{self.base_url}/payment/init", payload
+        response = self._http_client.request(
+            f"{self.base_url}/payment/init", json=payload
         )
         return self._get_payment_info(response)
 
-    def req_payload(self, pay_id, **kwargs):
+    def _build_payload(self, pay_id: str, **kwargs):
         pairs = (
             ("merchantId", self.merchant_id),
             ("payId", pay_id),
             ("dttm", get_dttm()),
         )
-        for k, v in kwargs.items():
-            if v is not None:
-                pairs += ((k, v),)
+        for key, val in kwargs.items():
+            if val is not None:
+                pairs += ((key, val),)
         return mk_payload(keyfile=self.private_key_file, pairs=pairs)
 
     def get_payment_process_url(self, pay_id: str) -> str:
@@ -135,16 +135,16 @@ class Client:
         """
         return mk_url(
             f"{self.base_url}/payment/process/",
-            payload=self.req_payload(pay_id=pay_id),
+            payload=self._build_payload(pay_id=pay_id),
         )
 
     def get_payment_status(self, pay_id: str):
         """Request payment status information."""
         url = mk_url(
             f"{self.base_url}/payment/status/",
-            payload=self.req_payload(pay_id=pay_id),
+            payload=self._build_payload(pay_id=pay_id),
         )
-        response = self._http_client.get(url=url)
+        response = self._http_client.request(url, method="get")
         return self._get_payment_info(response)
 
     def process_gateway_return(self, datadict: dict) -> PaymentInfo:
@@ -161,6 +161,17 @@ class Client:
         return self._get_payment_info(
             HTTPResponse(http_success=True, data=data)
         )
+
+    def reverse_payment(self, pay_id: str) -> PaymentInfo:
+        """Reverse payment.
+
+        :param pay_id: payment ID
+        """
+        payload = self._build_payload(pay_id)
+        response = self._http_client.request(
+            f"{self.base_url}/payment/reverse", "put", payload
+        )
+        return self._get_payment_info(response)
 
     def _get_payment_info(self, response: HTTPResponse) -> PaymentInfo:
         if response.http_success and response.data["resultCode"] == 0:
