@@ -13,14 +13,14 @@ pip install csobclient
 
 ### Client initialization
 ```python
-from csobclient.v19 import Client
+from csobclient import Client
 
 client = Client("merchantId", "merch_private.key", "csob.pub")
 ```
 
 ### Payment initialization
 ```python
-from csobclient.v19.cart import Cart, CartItem
+from csobclient import Cart, CartItem
 
 response = client.init_payment(
     order_no="2233823251",
@@ -53,8 +53,7 @@ response = client.reverse_payment(pay_id)
 
 ### Exceptions handling
 ```python
-from csobclient.v19.http import HTTPRequestError
-from csobclient.v19 import APIError
+from csobclient import APIError, HTTPRequestError
 
 try:
     client.operation(...)
