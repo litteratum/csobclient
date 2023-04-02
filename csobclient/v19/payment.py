@@ -6,6 +6,19 @@ from typing import Optional
 from .merchant import _MerchantData
 
 
+class PaymentStatus(Enum):
+    """Payment status."""
+
+    INITIATED = 1
+    IN_PROGRESS = 2
+    CANCELLED = 3
+    CONFIRMED = 4
+    REVERSED = 5
+    DENIED = 6
+    WAITING_SETTLEMENT = 7
+    SETTLED = 8
+
+
 class PaymentOperation(Enum):
     """Payment operation."""
 
@@ -26,7 +39,7 @@ class PaymentInfo:
     """Payment information."""
 
     pay_id: str
-    payment_status: Optional[int] = None
+    payment_status: Optional[PaymentStatus] = None
     customer_code: Optional[str] = None
     status_detail: Optional[str] = None
     auth_code: Optional[str] = None
@@ -39,9 +52,13 @@ class PaymentInfo:
         if merchant_data is not None:
             merchant_data = _MerchantData.from_base64(merchant_data).data
 
+        payment_status = response.get("paymentStatus")
+        if payment_status is not None:
+            payment_status = PaymentStatus(payment_status)
+
         return cls(
             response["payId"],
-            payment_status=response.get("paymentStatus"),
+            payment_status=payment_status,
             customer_code=response.get("customerCode"),
             status_detail=response.get("statusDetail"),
             auth_code=response.get("authCode"),

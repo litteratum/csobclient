@@ -6,6 +6,7 @@ from csobclient.v19.client import APIError
 from csobclient.v19.http import HTTPResponse
 from csobclient.v19.signature import mk_payload
 from csobclient.v19.dttm import get_dttm
+from csobclient.v19 import PaymentStatus
 
 from tests.config import KEY_PATH
 from . import get_fake_http_client
@@ -37,7 +38,7 @@ def test_success():
     )
 
     info = client.reverse_payment("12345")
-    assert info.payment_status == 5
+    assert info.payment_status is PaymentStatus.REVERSED
 
 
 def test_api_error():

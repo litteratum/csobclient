@@ -6,6 +6,7 @@ from .v19 import (
     CartItem,
     Currency,
     PaymentInfo,
+    PaymentStatus,
     PaymentMethod,
     PaymentOperation,
     WebPageAppearanceConfig,

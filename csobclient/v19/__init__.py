@@ -2,5 +2,10 @@
 from .client import Client, APIError
 from .cart import Cart, CartItem
 from .currency import Currency
-from .payment import PaymentInfo, PaymentMethod, PaymentOperation
+from .payment import (
+    PaymentInfo,
+    PaymentMethod,
+    PaymentOperation,
+    PaymentStatus,
+)
 from .webpage import WebPageAppearanceConfig, WebPageLanguage

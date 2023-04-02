@@ -3,6 +3,7 @@
 import csobclient
 from csobclient.v19.signature import mk_payload
 from csobclient.v19.dttm import get_dttm
+from csobclient.v19 import PaymentStatus
 
 from tests.config import KEY_PATH
 from . import get_fake_http_client
@@ -34,4 +35,4 @@ def test_success():
 
     assert info.pay_id == "12345"
     assert info.merchant_data == b"Hello"
-    assert info.payment_status == 7
+    assert info.payment_status is PaymentStatus.WAITING_SETTLEMENT
