@@ -46,8 +46,14 @@ class Cart:
     """Cart."""
 
     def __init__(self, items: List[CartItem]) -> None:
+        """Init a cart.
+
+        :param items: cart items. Please note that 1 or 2 items are allowed
+        """
+        if len(items) not in (1, 2):
+            raise ValueError("Cart can only hold 1 or 2 items")
         self._items = items
 
     def as_json(self) -> List[OrderedDict]:
-        """Return cart as JSON array."""
+        """Return cart as a JSON array."""
         return [item.as_json() for item in self._items]

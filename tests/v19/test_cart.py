@@ -38,3 +38,10 @@ def test_cart_as_json():
     """Test for the Cart.as_json()."""
     item = CartItem("example", 1, 1)
     assert Cart([item]).as_json() == [item.as_json()]
+
+
+@pytest.mark.parametrize("items", [[], [CartItem("example", 1, 1)] * 3])
+def test_invalid_size(items):
+    """Test for the invalid cart size."""
+    with pytest.raises(ValueError, match="1 or 2"):
+        Cart(items)
