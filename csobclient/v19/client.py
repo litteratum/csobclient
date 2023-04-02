@@ -118,6 +118,22 @@ class Client:
         )
         return self._get_payment_info(response)
 
+    def close_payment(
+        self, pay_id: str, total_amount: Optional[int] = None
+    ) -> PaymentInfo:
+        """Close payment (move to settlement).
+
+        :param total_amount: close the payment with this amount. It must be
+          less or equal to the original amount and provided in hundredths of
+          the base currency
+        """
+        response = self._http_client.request(
+            f"{self.base_url}/payment/close",
+            "put",
+            json=self._build_payload(pay_id, totalAmount=total_amount),
+        )
+        return self._get_payment_info(response)
+
     def _build_payload(self, pay_id: str, **kwargs):
         pairs = (
             ("merchantId", self.merchant_id),
