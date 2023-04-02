@@ -8,11 +8,12 @@ from csobclient.v19.http import HTTPResponse
 from csobclient.v19.signature import mk_payload, InvalidSignatureError
 from csobclient.v19.dttm import get_dttm
 from csobclient.v19.cart import Cart, CartItem
+from csobclient.v19 import FileRSAKey, CachedRSAKey
 
-from tests.config import KEY_PATH
+from tests.config import KEY_PATH, KEY
 from . import get_fake_http_client
 
-_CLIENT = csobclient.Client("id", "url", "pvk", "pk")
+_CLIENT = csobclient.Client("id", KEY_PATH, KEY_PATH, base_url="url")
 
 
 @pytest.mark.parametrize(
@@ -64,14 +65,24 @@ def test_to_long_merchant_data():
         )
 
 
-def test_success():
+@pytest.mark.parametrize(
+    ["pvk", "pubk"],
+    [
+        (KEY_PATH, KEY_PATH),
+        (CachedRSAKey(KEY_PATH), CachedRSAKey(KEY_PATH)),
+        (FileRSAKey(KEY_PATH), FileRSAKey(KEY_PATH)),
+        (CachedRSAKey(KEY_PATH), FileRSAKey(KEY_PATH)),
+        (FileRSAKey(KEY_PATH), CachedRSAKey(KEY_PATH)),
+    ],
+)
+def test_success(pvk, pubk):
     """Test for the successful payment init."""
 
     def _post_json(*_, **__) -> HTTPResponse:
         return HTTPResponse(
             http_success=True,
             data=mk_payload(
-                KEY_PATH,
+                KEY,
                 pairs=(
                     ("payId", "12345"),
                     ("dttm", get_dttm()),
@@ -84,8 +95,8 @@ def test_success():
 
     client = csobclient.Client(
         "id",
-        KEY_PATH,
-        KEY_PATH,
+        pvk,
+        pubk,
         http_client=get_fake_http_client(request=_post_json),
     )
     client.init_payment(

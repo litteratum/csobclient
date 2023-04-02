@@ -6,7 +6,7 @@ from csobclient.v19.signature import mk_payload
 from csobclient.v19.dttm import get_dttm
 from csobclient.v19 import PaymentStatus
 
-from tests.config import KEY_PATH
+from tests.config import KEY_PATH, KEY
 from . import get_fake_http_client
 
 
@@ -17,7 +17,7 @@ def test_success():
         return HTTPResponse(
             http_success=True,
             data=mk_payload(
-                KEY_PATH,
+                KEY,
                 pairs=(
                     ("payId", "12345"),
                     ("dttm", get_dttm()),

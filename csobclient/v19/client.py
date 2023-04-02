@@ -1,6 +1,6 @@
 """Client."""
 from enum import Enum
-from typing import Optional
+from typing import Optional, Union
 
 from .currency import Currency
 from .payment import PaymentMethod, PaymentOperation, PaymentInfo
@@ -10,6 +10,7 @@ from .webpage import WebPageAppearanceConfig
 from .dttm import get_dttm, get_payment_expiry
 from .signature import mk_payload, verify, mk_url
 from .http import RequestsHTTPClient, HTTPClient, HTTPResponse
+from .key import FileRSAKey, CachedRSAKey, RSAKey
 
 # from .customer import CustomerData
 # from .order import OrderData
@@ -43,16 +44,24 @@ class Client:
     def __init__(
         self,
         merchant_id: str,
-        private_key_file: str,
-        public_key_file: str,
+        private_key: Union[str, RSAKey],
+        public_key: Union[str, RSAKey],
         base_url: str = "https://iapi.iplatebnibrana.csob.cz/api/v1.9",
         http_client: HTTPClient = RequestsHTTPClient(),
     ) -> None:
         # pylint:disable=too-many-arguments
         self.merchant_id = merchant_id
         self.base_url = base_url.rstrip("/")
-        self.private_key_file = private_key_file
-        self.public_key_file = public_key_file
+
+        if isinstance(private_key, str):
+            self.private_key = FileRSAKey(private_key)
+        else:
+            self.private_key = private_key
+
+        if isinstance(public_key, str):
+            self.public_key = CachedRSAKey(public_key)
+        else:
+            self.public_key = public_key
 
         self._http_client = http_client
 
@@ -89,7 +98,7 @@ class Client:
         cart = cart or Cart([CartItem("Payment", 1, total_amount)])
 
         payload = mk_payload(
-            self.private_key_file,
+            str(self.private_key),
             pairs=(
                 ("merchantId", self.merchant_id),
                 ("orderNo", order_no),
@@ -143,7 +152,8 @@ class Client:
         for key, val in kwargs.items():
             if val is not None:
                 pairs += ((key, val),)
-        return mk_payload(keyfile=self.private_key_file, pairs=pairs)
+
+        return mk_payload(str(self.private_key), pairs=pairs)
 
     def get_payment_process_url(self, pay_id: str) -> str:
         """Build payment URL.
@@ -193,7 +203,7 @@ class Client:
 
     def _get_payment_info(self, response: HTTPResponse) -> PaymentInfo:
         if response.http_success and response.data["resultCode"] == 0:
-            verify(response.data, self.public_key_file)
+            verify(response.data, str(self.public_key))
             return PaymentInfo.from_response(response.data)
 
         raise APIError(

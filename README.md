@@ -62,3 +62,33 @@ except APIError as exc:
 except HTTPRequestError as exc:
     # handle HTTP error
 ```
+
+### RSA keys management
+The simples way to pass RSA keys is to pass their file paths:
+
+```python
+from csobclient import Client
+
+client = Client("merchantId", "merch_private.key", "csob.pub")
+```
+
+The library will read the private key from the file when needed. The public key will be cached into the RAM.
+
+If you want to change it, use special classes:
+
+```python
+from csobclient import Client, FileRSAKey, CachedRSAKey
+
+client = Client("merchantId", FileRSAKey("merch_private.key"), FileRSAKey("csob.pub"))
+```
+
+You may also override the base RSAKey class to define your own key access strategy:
+
+```python
+from csobclient import RSAKey
+
+class MyRSAKey(RSAKey):
+
+    def __str__(self) -> str:
+        return "my key"
+```

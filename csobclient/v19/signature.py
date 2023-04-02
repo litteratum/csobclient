@@ -51,29 +51,27 @@ def mk_url(url: str, payload=None):
     return urljoin(url, "/".join(map(quote_plus, payload.values())))
 
 
-def mk_payload(keyfile, pairs):
+def mk_payload(key: str, pairs):
     """Make payload."""
     payload = OrderedDict([(k, v) for k, v in pairs if v is not None])
-    payload["signature"] = sign(payload, keyfile)
+    payload["signature"] = sign(payload, key)
     return payload
 
 
-def sign(payload, keyfile):
+def sign(payload, key: str):
     """Sign payload."""
     msg = mk_msg_for_sign(payload)
-    with open(keyfile, encoding="utf8") as file:
-        key = RSA.importKey(file.read())
+    key = RSA.importKey(key)  # type: ignore
     hasher = SHA256.new(msg)
-    signer = PKCS1_v1_5.new(key)
+    signer = PKCS1_v1_5.new(key)  # type: ignore
     return b64encode(signer.sign(hasher)).decode()
 
 
-def _verify(payload: dict, signature: str, pubkeyfile: str):
+def _verify(payload: dict, signature: str, key: str):
     msg = mk_msg_for_sign(payload)
-    with open(pubkeyfile, encoding="utf8") as file:
-        key = RSA.importKey(file.read())
+    key = RSA.importKey(key)  # type: ignore
     hasher = SHA256.new(msg)
-    verifier = PKCS1_v1_5.new(key)
+    verifier = PKCS1_v1_5.new(key)  # type: ignore
 
     try:
         sig_as_bytes = b64decode(signature)

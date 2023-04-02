@@ -11,6 +11,9 @@ from .v19 import (
     PaymentOperation,
     WebPageAppearanceConfig,
     WebPageLanguage,
+    RSAKey,
+    CachedRSAKey,
+    FileRSAKey,
 )
 from .v19.http import (
     HTTPClient,
