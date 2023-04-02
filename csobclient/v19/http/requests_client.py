@@ -14,6 +14,7 @@ _DEFAULT_TIMEOUT = 10
 
 
 class RequestsHTTPClient(HTTPClient):
+    # pylint:disable=too-few-public-methods
     """`requests` HTTP client."""
 
     def __init__(self) -> None:

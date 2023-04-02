@@ -6,6 +6,7 @@ from .fields import _StrField, _IntField
 
 
 class CartItem:
+    # pylint:disable=too-few-public-methods
     """Cart item."""
 
     name = _StrField(max_length=20)
@@ -41,6 +42,7 @@ class CartItem:
 
 
 class Cart:
+    # pylint:disable=too-few-public-methods
     """Cart."""
 
     def __init__(self, items: List[CartItem]) -> None:

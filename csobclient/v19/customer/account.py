@@ -4,6 +4,7 @@ from ..fields import _IntField
 
 
 class AccountData:
+    # pylint:disable=too-many-instance-attributes, too-few-public-methods
     """Customer account data."""
 
     order_history = _IntField(min_value=0, max_value=9999)
@@ -22,6 +23,7 @@ class AccountData:
         oneclick_adds: Optional[int] = None,
         suspicious: Optional[bool] = None,
     ) -> None:
+        # pylint:disable=too-many-arguments
         self.created_at = created_at
         self.changed_at = changed_at
         self.changed_pwd_at = changed_pwd_at

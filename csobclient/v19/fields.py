@@ -27,6 +27,7 @@ class _Field(ABC):
 
 
 class _StrField(_Field):
+    # pylint:disable=too-few-public-methods
     def __init__(self, max_length: Optional[int] = None) -> None:
         self.max_length = max_length
         super().__init__()
@@ -43,6 +44,7 @@ class _StrField(_Field):
 
 
 class _IntField(_Field):
+    # pylint:disable=too-few-public-methods
     def __init__(
         self, min_value: Optional[int] = None, max_value: Optional[int] = None
     ) -> None:

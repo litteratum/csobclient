@@ -27,6 +27,7 @@ class WebPageLanguage(Enum):
 
 
 class WebPageAppearanceConfig:
+    # pylint:disable=too-few-public-methods
     """PG web page appearance configuration."""
 
     def __init__(

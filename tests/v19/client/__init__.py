@@ -10,6 +10,7 @@ def get_fake_http_client(request: Optional[Callable] = None):
         request = lambda *_, **__: HTTPResponse(True, {})
 
     class _FakeHTTPClient(HTTPClient):
+        # pylint:disable=too-few-public-methods
         def request(
             self, url: str, method: str = "post", json: Optional[dict] = None
         ) -> HTTPResponse:

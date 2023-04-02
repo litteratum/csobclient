@@ -1,4 +1,5 @@
 """Tests for the `reverse_payment` method."""
+# pylint:disable=duplicate-code
 import pytest
 import csobclient
 from csobclient.v19.client import APIError

@@ -25,13 +25,15 @@ class InvalidSignatureError(Exception):
     """Response signature is invalid."""
 
 
-def str_or_jsbool(v):
-    if type(v) == bool:
-        return str(v).lower()
-    return str(v)
+def str_or_jsbool(val):
+    """Return str of val."""
+    if isinstance(val, bool):
+        return str(val).lower()
+    return str(val)
 
 
 def mk_msg_for_sign(payload):
+    """Make message for sign."""
     payload = payload.copy()
     if payload.get("cart"):
         cart_msg = []
@@ -43,29 +45,34 @@ def mk_msg_for_sign(payload):
 
 
 def mk_url(url: str, payload=None):
+    """Make URL."""
     if payload is None:
         return url
     return urljoin(url, "/".join(map(quote_plus, payload.values())))
 
 
 def mk_payload(keyfile, pairs):
+    """Make payload."""
     payload = OrderedDict([(k, v) for k, v in pairs if v is not None])
     payload["signature"] = sign(payload, keyfile)
     return payload
 
 
 def sign(payload, keyfile):
+    """Sign payload."""
     msg = mk_msg_for_sign(payload)
-    key = RSA.importKey(open(keyfile).read())
-    h = SHA256.new(msg)
+    with open(keyfile, encoding="utf8") as file:
+        key = RSA.importKey(file.read())
+    hasher = SHA256.new(msg)
     signer = PKCS1_v1_5.new(key)
-    return b64encode(signer.sign(h)).decode()
+    return b64encode(signer.sign(hasher)).decode()
 
 
 def _verify(payload: dict, signature: str, pubkeyfile: str):
     msg = mk_msg_for_sign(payload)
-    key = RSA.importKey(open(pubkeyfile).read())
-    h = SHA256.new(msg)
+    with open(pubkeyfile, encoding="utf8") as file:
+        key = RSA.importKey(file.read())
+    hasher = SHA256.new(msg)
     verifier = PKCS1_v1_5.new(key)
 
     try:
@@ -73,7 +80,8 @@ def _verify(payload: dict, signature: str, pubkeyfile: str):
     except binascii.Error as exc:
         raise InvalidSignatureError(f"Failed to decode base64: {exc}") from exc
 
-    return verifier.verify(h, sig_as_bytes)
+    # pylint:disable=not-callable
+    return verifier.verify(hasher, sig_as_bytes)
 
 
 def verify(json_data: dict, key: str) -> None:

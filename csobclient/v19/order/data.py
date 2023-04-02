@@ -27,6 +27,7 @@ class OrderAvailability(Enum):
 
 
 class GiftCardsData:
+    # pylint:disable=too-few-public-methods
     """Gift cards data."""
 
     quantity = _IntField(min_value=1, max_value=99)
@@ -43,6 +44,7 @@ class GiftCardsData:
 
 
 class OrderData:
+    # pylint:disable=too-few-public-methods, too-many-instance-attributes
     """Order data."""
 
     def __init__(
@@ -60,6 +62,7 @@ class OrderData:
         reorder: Optional[bool] = None,
         gift_cards: Optional[GiftCardsData] = None,
     ) -> None:
+        # pylint:disable=too-many-arguments
         self.order_type = order_type
         self.availability = availability
         self.delivery = delivery

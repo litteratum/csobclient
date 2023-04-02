@@ -1,4 +1,5 @@
 """Tests for the `init_payment` method."""
+# pylint:disable=duplicate-code
 import base64
 import pytest
 

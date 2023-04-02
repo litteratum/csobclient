@@ -1,6 +1,11 @@
 name: CI Pipeline
 
-on: [pull_request, push]
+on:
+  push:
+    branches:
+      - "**"
+    tags-ignore:
+      - "v.*.*.*"
 
 jobs:
   test:
@@ -8,16 +13,16 @@ jobs:
       fail-fast: false
       matrix:
         os: ["ubuntu-latest"]
-        python-version: ["3.7", "3.9"]
+        python-version: ["3.7", "3.9", "3.10"]
     defaults:
       run:
         shell: bash
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v3
       - name: Set up Python v${{matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version}}
       - name: Install Poetry

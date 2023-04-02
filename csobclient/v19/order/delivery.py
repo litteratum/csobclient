@@ -24,6 +24,7 @@ class DeliveryMode(Enum):
 
 
 class DeliveryData:
+    # pylint:disable=too-few-public-methods
     """Delivery data."""
 
     def __init__(

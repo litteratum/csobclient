@@ -7,6 +7,7 @@ from ..fields import _StrField
 
 
 class PhoneNumber:
+    # pylint:disable=too-few-public-methods
     """Phone number."""
 
     def __init__(self, prefix: str, subscriber: str) -> None:
@@ -15,6 +16,7 @@ class PhoneNumber:
 
 
 class CustomerData:
+    # pylint:disable=too-few-public-methods
     """Customer information."""
 
     name = _StrField(max_length=45)
@@ -30,6 +32,7 @@ class CustomerData:
         account: Optional[AccountData] = None,
         login: Optional[LoginData] = None,
     ) -> None:
+        # pylint:disable=too-many-arguments
         self.name = name
         self.email = email
         self.home_phone = home_phone

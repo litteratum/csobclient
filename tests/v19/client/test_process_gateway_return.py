@@ -1,4 +1,5 @@
 """Tests for the `process_gateway_return` method."""
+# pylint:disable=duplicate-code
 import csobclient
 from csobclient.v19.signature import mk_payload
 from csobclient.v19.dttm import get_dttm

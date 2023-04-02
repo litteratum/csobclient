@@ -48,6 +48,7 @@ class Client:
         base_url: str = "https://iapi.iplatebnibrana.csob.cz/api/v1.9",
         http_client: HTTPClient = RequestsHTTPClient(),
     ) -> None:
+        # pylint:disable=too-many-arguments
         self.merchant_id = merchant_id
         self.base_url = base_url.rstrip("/")
         self.private_key_file = private_key_file
@@ -74,8 +75,9 @@ class Client:
         payment_expiry: Optional[int] = None,
         page_appearance: WebPageAppearanceConfig = WebPageAppearanceConfig(),
     ) -> PaymentInfo:
+        # pylint:disable=too-many-arguments, too-many-locals
         """Init payment."""
-        if not (300 <= ttl_sec <= 1800):
+        if not 300 <= ttl_sec <= 1800:
             raise ValueError('"ttl_sec" must be in [300, 1800]')
         if len(order_no) > 10:
             raise ValueError('"order_no" must be up to 10 chars')

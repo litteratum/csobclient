@@ -17,6 +17,7 @@ class AuthMethod(Enum):
 
 
 class LoginData:
+    # pylint:disable=too-few-public-methods
     """Customer login data."""
 
     def __init__(
