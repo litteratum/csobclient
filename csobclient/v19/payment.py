@@ -17,6 +17,8 @@ class PaymentStatus(Enum):
     DENIED = 6
     WAITING_SETTLEMENT = 7
     SETTLED = 8
+    REFUND_PROCESSING = 9
+    RETURNED = 10
 
 
 class PaymentOperation(Enum):
