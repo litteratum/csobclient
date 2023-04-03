@@ -2,6 +2,7 @@
 from .v19 import (
     Client,
     APIError,
+    InvalidSignatureError,
     Cart,
     CartItem,
     Currency,
@@ -14,12 +15,10 @@ from .v19 import (
     RSAKey,
     CachedRSAKey,
     FileRSAKey,
-)
-from .v19.http import (
     HTTPClient,
+    RequestsHTTPClient,
     HTTPConnectionError,
     HTTPRequestError,
     HTTPResponse,
     HTTPTimeoutError,
-    RequestsHTTPClient,
 )

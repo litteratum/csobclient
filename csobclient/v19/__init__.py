@@ -11,3 +11,12 @@ from .payment import (
 )
 from .webpage import WebPageAppearanceConfig, WebPageLanguage
 from .key import RSAKey, FileRSAKey, CachedRSAKey
+from .signature import InvalidSignatureError
+from .http import (
+    HTTPClient,
+    HTTPConnectionError,
+    HTTPRequestError,
+    HTTPResponse,
+    HTTPTimeoutError,
+    RequestsHTTPClient,
+)
