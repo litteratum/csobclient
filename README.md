@@ -56,11 +56,19 @@ response = client.reverse_payment(pay_id)
 from csobclient import APIError, HTTPRequestError
 
 try:
-    client.operation(...)
+    response = client.operation(...)
+    response.raise_for_result_code()
 except APIError as exc:
     # handle API error
 except HTTPRequestError as exc:
     # handle HTTP error
+```
+
+It is also possible to check whether the API response is successful by checking the response.ok field:
+```python
+response = client.operation(...)
+if not response.ok:
+    # handle
 ```
 
 ### RSA keys management
