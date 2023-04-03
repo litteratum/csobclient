@@ -62,6 +62,8 @@ except APIError as exc:
     # handle API error
 except HTTPRequestError as exc:
     # handle HTTP error
+except ValueError as exc:  # invalid params passed. Development error!
+    # handle value error
 ```
 
 It is also possible to check whether the API response is successful by checking the response.ok field:
