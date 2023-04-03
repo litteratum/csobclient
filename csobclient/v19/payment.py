@@ -65,6 +65,12 @@ class PaymentInfo:
     auth_code: Optional[str] = None
     merchant_data: Optional[bytes] = None
 
+    @property
+    def ok(self) -> bool:
+        # pylint:disable=invalid-name
+        """Return whether it is OK API response."""
+        return self.result_code == 0
+
     @classmethod
     def from_response(cls, response: dict) -> "PaymentInfo":
         """Create a PaymentInfo object from a response dictionary."""

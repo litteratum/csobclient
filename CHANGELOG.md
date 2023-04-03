@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
   * `PaymentInfo.raise_for_result_code` method. Works similar as `requests.raise_for_status`
+  * `PaymentInfo.ok` property
 
 
 ## [0.2.0] - 2023-04-02
