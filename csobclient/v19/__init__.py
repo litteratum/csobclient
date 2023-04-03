@@ -1,8 +1,9 @@
 """Client for API v.1.9."""
-from .client import Client, APIError
+from .client import Client
 from .cart import Cart, CartItem
 from .currency import Currency
 from .payment import (
+    APIError,
     PaymentInfo,
     PaymentMethod,
     PaymentOperation,

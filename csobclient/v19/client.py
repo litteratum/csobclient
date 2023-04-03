@@ -23,21 +23,6 @@ class ReturnMethod(Enum):
     GET = "GET"
 
 
-class APIError(Exception):
-    """API error."""
-
-    def __init__(self, code: int, message: str) -> None:
-        """Init API error.
-
-        :param code: error code
-        :message: error message
-        :status_detail: status detail
-        """
-        self.code = code
-        self.message = message
-        super().__init__(f"{self.code}: {self.message}")
-
-
 class Client:
     """API client."""
 
@@ -202,11 +187,7 @@ class Client:
         return self._get_payment_info(response)
 
     def _get_payment_info(self, response: HTTPResponse) -> PaymentInfo:
-        if response.http_success and response.data.get("resultCode") == 0:
+        if response.http_success:
             verify(response.data, str(self.public_key))
-            return PaymentInfo.from_response(response.data)
 
-        raise APIError(
-            response.data.get("resultCode", 900),
-            response.data.get("resultMessage", "Internal error"),
-        )
+        return PaymentInfo.from_response(response.data)

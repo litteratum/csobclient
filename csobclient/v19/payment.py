@@ -6,6 +6,21 @@ from typing import Optional
 from .merchant import _MerchantData
 
 
+class APIError(Exception):
+    """API error."""
+
+    def __init__(self, code: int, message: str) -> None:
+        """Init API error.
+
+        :param code: error code
+        :message: error message
+        :status_detail: status detail
+        """
+        self.code = code
+        self.message = message
+        super().__init__(f"{self.code}: {self.message}")
+
+
 class PaymentStatus(Enum):
     """Payment status."""
 
@@ -38,9 +53,12 @@ class PaymentMethod(Enum):
 
 @dataclass(frozen=True)
 class PaymentInfo:
+    # pylint:disable=too-many-instance-attributes
     """Payment information."""
 
-    pay_id: str
+    pay_id: Optional[str]
+    result_code: int
+    result_message: str
     payment_status: Optional[PaymentStatus] = None
     customer_code: Optional[str] = None
     status_detail: Optional[str] = None
@@ -59,10 +77,17 @@ class PaymentInfo:
             payment_status = PaymentStatus(payment_status)
 
         return cls(
-            response["payId"],
+            response.get("payId"),
+            result_code=int(response.get("resultCode", 900)),
+            result_message=response.get("resultMessage", "Internal error"),
             payment_status=payment_status,
             customer_code=response.get("customerCode"),
             status_detail=response.get("statusDetail"),
             auth_code=response.get("authCode"),
             merchant_data=merchant_data,
         )
+
+    def raise_for_result_code(self) -> None:
+        """Raise APIError if resultCode != 0."""
+        if self.result_code != 0:
+            raise APIError(self.result_code, self.result_message)

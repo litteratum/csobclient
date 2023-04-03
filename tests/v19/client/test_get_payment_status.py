@@ -58,5 +58,6 @@ def test_api_error():
         http_client=get_fake_http_client(request=_get),
     )
 
-    with pytest.raises(csobclient.v19.client.APIError):
-        client.get_payment_status("my_ID")
+    with pytest.raises(csobclient.v19.APIError):
+        response = client.get_payment_status("my_ID")
+        response.raise_for_result_code()

@@ -2,7 +2,7 @@
 # pylint:disable=duplicate-code
 import pytest
 import csobclient
-from csobclient.v19.client import APIError
+from csobclient.v19 import APIError
 from csobclient.v19.http import HTTPResponse
 from csobclient.v19.signature import mk_payload
 from csobclient.v19.dttm import get_dttm
@@ -67,6 +67,7 @@ def test_api_error():
     )
 
     with pytest.raises(APIError) as exc:
-        client.reverse_payment("12345")
+        response = client.reverse_payment("12345")
+        response.raise_for_result_code()
 
     assert exc.value.code == 150

@@ -116,7 +116,7 @@ def test_api_error():
 
     def _post_json(*_, **__) -> HTTPResponse:
         return HTTPResponse(
-            http_success=True,
+            http_success=False,
             data={
                 "resultCode": 100,
                 "resultMessage": "Missing parameter merchantId",
@@ -130,8 +130,9 @@ def test_api_error():
         http_client=get_fake_http_client(request=_post_json),
     )
 
-    with pytest.raises(csobclient.v19.client.APIError):
-        client.init_payment("oder_no", 100, "http://success.com")
+    with pytest.raises(csobclient.v19.APIError):
+        response = client.init_payment("oder_no", 100, "http://success.com")
+        response.raise_for_result_code()
 
 
 @pytest.mark.parametrize(
