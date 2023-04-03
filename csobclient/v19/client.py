@@ -202,10 +202,11 @@ class Client:
         return self._get_payment_info(response)
 
     def _get_payment_info(self, response: HTTPResponse) -> PaymentInfo:
-        if response.http_success and response.data["resultCode"] == 0:
+        if response.http_success and response.data.get("resultCode") == 0:
             verify(response.data, str(self.public_key))
             return PaymentInfo.from_response(response.data)
 
         raise APIError(
-            response.data["resultCode"], response.data["resultMessage"]
+            response.data.get("resultCode", 900),
+            response.data.get("resultMessage", "Internal error"),
         )
