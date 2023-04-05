@@ -31,7 +31,7 @@ class Client:
         merchant_id: str,
         private_key: Union[str, RSAKey],
         public_key: Union[str, RSAKey],
-        base_url: str = "https://iapi.iplatebnibrana.csob.cz/api/v1.9",
+        base_url: str = "https://api.platebnibrana.csob.cz/api/v1.9",
         http_client: HTTPClient = RequestsHTTPClient(),
     ) -> None:
         # pylint:disable=too-many-arguments
