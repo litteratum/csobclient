@@ -186,6 +186,23 @@ class Client:
         )
         return self._get_payment_info(response)
 
+    def refund_payment(
+        self, pay_id: str, amount: Optional[int] = None
+    ) -> PaymentInfo:
+        """Refund payment.
+
+        :param pay_id: payment ID
+        :param amount: amount to refund. It must be less or equal to the
+          original amount and provided in hundredths of the base currency.
+          If not provided, the full amount will be refunded.
+        """
+        response = self._http_client.request(
+            f"{self.base_url}/payment/refund",
+            "put",
+            self._build_payload(pay_id, amount=amount),
+        )
+        return self._get_payment_info(response)
+
     def _get_payment_info(self, response: HTTPResponse) -> PaymentInfo:
         if response.http_success:
             verify(response.data, str(self.public_key))
