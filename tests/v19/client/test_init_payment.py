@@ -73,6 +73,13 @@ def test_cart_total_amount_does_not_match():
         _CLIENT.init_payment("any", 50, "url", cart=cart)
 
 
+@pytest.mark.parametrize("amount", [-1, 0])
+def test_invalid_total_amount(amount: int):
+    """Test for the invalid `total_amount`."""
+    with pytest.raises(ValueError, match="> 0"):
+        _CLIENT.init_payment("any", amount, "url")
+
+
 @pytest.mark.parametrize(
     ["pvk", "pubk"],
     [

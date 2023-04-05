@@ -79,6 +79,8 @@ class Client:
             raise ValueError('"return_url" must be up to 300 chars')
         if customer_id and len(customer_id) > 50:
             raise ValueError('"customer_id" must be up to 50 chars')
+        if total_amount <= 0:
+            raise ValueError('"total_amount" must be > 0')
 
         cart = cart or Cart([CartItem("Payment", 1, total_amount)])
 
