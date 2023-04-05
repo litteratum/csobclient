@@ -82,6 +82,11 @@ class Client:
 
         cart = cart or Cart([CartItem("Payment", 1, total_amount)])
 
+        if cart.total_amount != total_amount:
+            raise ValueError(
+                "Cart's total amount does not match the requested total amount"
+            )
+
         payload = mk_payload(
             str(self.private_key),
             pairs=(

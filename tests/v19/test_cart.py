@@ -45,3 +45,13 @@ def test_invalid_size(items):
     """Test for the invalid cart size."""
     with pytest.raises(ValueError, match="1 or 2"):
         Cart(items)
+
+
+def test_total_amount():
+    """Test for the total_amount."""
+    assert (
+        Cart(
+            [CartItem("Apples", 2, 10), CartItem("Oranges", 1, 20)]
+        ).total_amount
+        == 40
+    )

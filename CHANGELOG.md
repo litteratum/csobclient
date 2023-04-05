@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
   * `/payment/refund`
+  * Validate Cart's total amount with the requested `total_amount`
 
 
 ## [0.3.0] - 2023-04-03

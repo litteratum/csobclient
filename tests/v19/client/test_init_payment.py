@@ -65,6 +65,14 @@ def test_to_long_merchant_data():
         )
 
 
+def test_cart_total_amount_does_not_match():
+    """Test for a case when total_amount != cart's amount."""
+    cart = Cart([CartItem("Apples", 2, 10), CartItem("Oranges", 1, 20)])
+
+    with pytest.raises(ValueError, match="total amount does not match"):
+        _CLIENT.init_payment("any", 50, "url", cart=cart)
+
+
 @pytest.mark.parametrize(
     ["pvk", "pubk"],
     [
@@ -103,7 +111,7 @@ def test_success(pvk, pubk):
         "oder_no",
         100,
         "http://success.com",
-        cart=Cart([CartItem("item1", 2, 10), CartItem("item2", 1, 90)]),
+        cart=Cart([CartItem("item1", 1, 10), CartItem("item2", 1, 90)]),
         merchant_data=b"hello",
     )
 

@@ -26,6 +26,8 @@ class CartItem:
         self.amount = amount
         self.description = description
 
+        self.total_amount = self.amount * self.quantity
+
     def as_json(self) -> OrderedDict:
         """Return cart item as JSON."""
         item = OrderedDict(
@@ -53,6 +55,8 @@ class Cart:
         if len(items) not in (1, 2):
             raise ValueError("Cart can only hold 1 or 2 items")
         self._items = items
+
+        self.total_amount = sum(item.total_amount for item in self._items)
 
     def as_json(self) -> List[OrderedDict]:
         """Return cart as a JSON array."""
