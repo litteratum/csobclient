@@ -1,12 +1,9 @@
 """Tests for the `reverse_payment` method."""
 # pylint:disable=duplicate-code
 import pytest
-import csobclient
-from csobclient.v19 import APIError
-from csobclient.v19.http import HTTPResponse
+from csobclient.v19 import Client, APIError, PaymentStatus, HTTPResponse
 from csobclient.v19.signature import mk_payload
 from csobclient.v19.dttm import get_dttm
-from csobclient.v19 import PaymentStatus
 
 from tests.config import KEY_PATH, KEY
 from . import get_fake_http_client
@@ -30,7 +27,7 @@ def test_success():
             ),
         )
 
-    client = csobclient.Client(
+    client = Client(
         "id",
         KEY_PATH,
         KEY_PATH,
@@ -59,7 +56,7 @@ def test_api_error():
             ),
         )
 
-    client = csobclient.Client(
+    client = Client(
         "id",
         KEY_PATH,
         KEY_PATH,

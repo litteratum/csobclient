@@ -1,8 +1,8 @@
 """Tests for the `init_payment` method."""
 import pytest
 
-import csobclient
-from csobclient.v19.http import HTTPResponse
+from csobclient.v19 import Client, APIError
+from csobclient.v19 import HTTPResponse
 from csobclient.v19.signature import mk_payload
 from csobclient.v19.dttm import get_dttm
 
@@ -30,7 +30,7 @@ def test_success():
             ),
         )
 
-    client = csobclient.Client(
+    client = Client(
         "id",
         KEY_PATH,
         KEY_PATH,
@@ -51,13 +51,13 @@ def test_api_error():
             },
         )
 
-    client = csobclient.Client(
+    client = Client(
         "id",
         KEY_PATH,
         KEY_PATH,
         http_client=get_fake_http_client(request=_get),
     )
 
-    with pytest.raises(csobclient.v19.APIError):
+    with pytest.raises(APIError):
         response = client.get_payment_status("my_ID")
         response.raise_for_result_code()

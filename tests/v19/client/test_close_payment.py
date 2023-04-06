@@ -1,10 +1,8 @@
 """Tests for the `close_payment` method."""
 # pylint:disable=duplicate-code
-import csobclient
-from csobclient.v19.http import HTTPResponse
+from csobclient.v19 import Client, PaymentStatus, HTTPResponse
 from csobclient.v19.signature import mk_payload
 from csobclient.v19.dttm import get_dttm
-from csobclient.v19 import PaymentStatus
 
 from tests.config import KEY_PATH, KEY
 from . import get_fake_http_client
@@ -28,7 +26,7 @@ def test_success():
             ),
         )
 
-    client = csobclient.Client(
+    client = Client(
         "id",
         KEY_PATH,
         KEY_PATH,

@@ -13,14 +13,14 @@ pip install csobclient
 
 ### Client initialization
 ```python
-from csobclient import Client
+from csobclient.v19 import Client
 
 client = Client("merchantId", "merch_private.key", "csob.pub")
 ```
 
 ### Payment initialization
 ```python
-from csobclient import Cart, CartItem
+from csobclient.v19 import Cart, CartItem
 
 response = client.init_payment(
     order_no="2233823251",
@@ -53,7 +53,7 @@ response = client.reverse_payment(pay_id)
 
 ### Exceptions handling
 ```python
-from csobclient import APIError, HTTPRequestError
+from csobclient.v19 import APIError, HTTPRequestError
 
 try:
     response = client.operation(...)
@@ -77,7 +77,7 @@ if not response.ok:
 The simples way to pass RSA keys is to pass their file paths:
 
 ```python
-from csobclient import Client
+from csobclient.v19 import Client
 
 client = Client("merchantId", "merch_private.key", "csob.pub")
 ```
@@ -87,7 +87,7 @@ The library will read the private key from the file when needed. The public key 
 If you want to change it, use special classes:
 
 ```python
-from csobclient import Client, FileRSAKey, CachedRSAKey
+from csobclient.v19 import Client, FileRSAKey, CachedRSAKey
 
 client = Client("merchantId", FileRSAKey("merch_private.key"), FileRSAKey("csob.pub"))
 ```
@@ -95,7 +95,7 @@ client = Client("merchantId", FileRSAKey("merch_private.key"), FileRSAKey("csob.
 You may also override the base RSAKey class to define your own key access strategy:
 
 ```python
-from csobclient import RSAKey
+from csobclient.v19 import RSAKey
 
 class MyRSAKey(RSAKey):
 

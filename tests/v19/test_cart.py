@@ -1,7 +1,7 @@
 """Tests for the cart module."""
 from typing import Optional
 import pytest
-from csobclient.v19.cart import Cart, CartItem
+from csobclient.v19 import Cart, CartItem
 
 
 def test_cart_item_as_json():

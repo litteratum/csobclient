@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   * Use production API URL by default
 
+### Changed
+
+  * Don't allow import from the `csobclient` directly. Use `csobclient.v19` instead
+
 
 ## [0.3.0] - 2023-04-03
 

@@ -3,17 +3,22 @@
 import base64
 import pytest
 
-import csobclient
-from csobclient.v19.http import HTTPResponse
+from csobclient.v19 import (
+    FileRSAKey,
+    CachedRSAKey,
+    Client,
+    Cart,
+    CartItem,
+    HTTPResponse,
+    APIError,
+)
 from csobclient.v19.signature import mk_payload, InvalidSignatureError
 from csobclient.v19.dttm import get_dttm
-from csobclient.v19.cart import Cart, CartItem
-from csobclient.v19 import FileRSAKey, CachedRSAKey
 
 from tests.config import KEY_PATH, KEY
 from . import get_fake_http_client
 
-_CLIENT = csobclient.Client("id", KEY_PATH, KEY_PATH, base_url="url")
+_CLIENT = Client("id", KEY_PATH, KEY_PATH, base_url="url")
 
 
 @pytest.mark.parametrize(
@@ -108,7 +113,7 @@ def test_success(pvk, pubk):
             ),
         )
 
-    client = csobclient.Client(
+    client = Client(
         "id",
         pvk,
         pubk,
@@ -138,14 +143,14 @@ def test_api_error():
             },
         )
 
-    client = csobclient.Client(
+    client = Client(
         "id",
         KEY_PATH,
         KEY_PATH,
         http_client=get_fake_http_client(request=_post_json),
     )
 
-    with pytest.raises(csobclient.v19.APIError):
+    with pytest.raises(APIError):
         response = client.init_payment("oder_no", 100, "http://success.com")
         response.raise_for_result_code()
 
@@ -167,7 +172,7 @@ def test_invalid_signature(signature: str):
             data={"signature": signature, "resultCode": 0},
         )
 
-    client = csobclient.Client(
+    client = Client(
         "id",
         KEY_PATH,
         KEY_PATH,
