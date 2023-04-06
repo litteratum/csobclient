@@ -51,6 +51,11 @@ payment_info = client.get_payment_status(pay_id)
 response = client.reverse_payment(pay_id)
 ```
 
+### Refund payment
+```python
+response = client.refund_payment(pay_id, amount=100)
+```
+
 ### Exceptions handling
 ```python
 from csobclient.v19 import APIError, HTTPRequestError
