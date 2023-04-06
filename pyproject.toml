@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "csobclient"
-version = "0.3.0"
+version = "0.4.0"
 description = "Library for communication with ČSOB API"
 authors = ["Andrii Nechaiev <andrewnech@gmail.com>"]
 license = "MIT"
