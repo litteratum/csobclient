@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+
+## [0.4.1] - 2023-11-14
+### Added
+
+  * Python 3.11 support
+  * `nox` integration for tests
+
+
+## [0.4.0] - 2023-06-03
+
 ### Added
 
   * `/payment/refund`
