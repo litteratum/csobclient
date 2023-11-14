@@ -8,3 +8,7 @@
 htmlcov
 
 .keys
+
+# pyevn
+.python-version
+#
