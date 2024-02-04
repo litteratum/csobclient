@@ -5,10 +5,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
-### Fixed
-
-  * Fix CI. Use Python 3.9, 3.11
-
 ### Changed
 
   * `http` package decoupled from the API
