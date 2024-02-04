@@ -1,16 +1,18 @@
 """Client."""
+
 from enum import Enum
 from typing import Optional, Union
 
-from .currency import Currency
-from .payment import PaymentMethod, PaymentOperation, PaymentInfo
+from ..http import HTTPClient, HTTPResponse
+from ..http.requests_client import RequestsHTTPClient
 from .cart import Cart, CartItem
-from .merchant import _MerchantData
-from .webpage import WebPageAppearanceConfig
+from .currency import Currency
 from .dttm import get_dttm, get_payment_expiry
-from .signature import mk_payload, verify, mk_url
-from .http import RequestsHTTPClient, HTTPClient, HTTPResponse
-from .key import FileRSAKey, CachedRSAKey, RSAKey
+from .key import CachedRSAKey, FileRSAKey, RSAKey
+from .merchant import _MerchantData
+from .payment import PaymentInfo, PaymentMethod, PaymentOperation
+from .signature import mk_payload, mk_url, verify
+from .webpage import WebPageAppearanceConfig
 
 # from .customer import CustomerData
 # from .order import OrderData
@@ -115,7 +117,7 @@ class Client:
             ),
         )
         response = self._http_client.request(
-            f"{self.base_url}/payment/init", json=payload
+            "post", f"{self.base_url}/payment/init", json=payload
         )
         return self._get_payment_info(response)
 
@@ -164,10 +166,11 @@ class Client:
             f"{self.base_url}/payment/status/",
             payload=self._build_payload(pay_id=pay_id),
         )
-        response = self._http_client.request(url, method="get")
+        response = self._http_client.request("get", url)
         return self._get_payment_info(response)
 
     def process_gateway_return(self, datadict: dict) -> PaymentInfo:
+        # pylint:disable=no-self-use
         """Process gateway return."""
         data = {}
 
@@ -178,9 +181,7 @@ class Client:
                 else datadict[key]
             )
 
-        return self._get_payment_info(
-            HTTPResponse(http_success=True, data=data)
-        )
+        return PaymentInfo.from_response(data)
 
     def reverse_payment(self, pay_id: str) -> PaymentInfo:
         """Reverse payment.
@@ -211,7 +212,7 @@ class Client:
         return self._get_payment_info(response)
 
     def _get_payment_info(self, response: HTTPResponse) -> PaymentInfo:
-        if response.http_success:
-            verify(response.data, str(self.public_key))
+        if response.success:
+            verify(response.json, str(self.public_key))
 
-        return PaymentInfo.from_response(response.data)
+        return PaymentInfo.from_response(response.json)

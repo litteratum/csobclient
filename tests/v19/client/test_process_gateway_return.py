@@ -1,11 +1,11 @@
 """Tests for the `process_gateway_return` method."""
-# pylint:disable=duplicate-code
-from csobclient.v19 import Client, PaymentStatus
-from csobclient.v19.signature import mk_payload
-from csobclient.v19.dttm import get_dttm
 
-from tests.config import KEY_PATH, KEY
-from . import get_fake_http_client
+from csobclient.v19 import Client, PaymentStatus
+from csobclient.v19.dttm import get_dttm
+from csobclient.v19.signature import mk_payload
+from tests.config import KEY, KEY_PATH
+
+from . import FakeHTTPClient
 
 
 def test_success():
@@ -14,7 +14,7 @@ def test_success():
         "id",
         KEY_PATH,
         KEY_PATH,
-        http_client=get_fake_http_client(),
+        http_client=FakeHTTPClient(responses=[]),
     )
 
     info = client.process_gateway_return(

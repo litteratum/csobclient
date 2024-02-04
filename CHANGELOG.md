@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   * Fix CI. Use Python 3.9, 3.11
 
+### Changed
+
+  * `http` package decoupled from the API
+
 
 ## [0.4.1] - 2023-11-14
 ### Added

@@ -58,7 +58,8 @@ response = client.refund_payment(pay_id, amount=100)
 
 ### Exceptions handling
 ```python
-from csobclient.v19 import APIError, HTTPRequestError
+from csobclient.v19 import APIError
+from csobclient.http import HTTPRequestError
 
 try:
     response = client.operation(...)

@@ -1,19 +1,49 @@
 """Tests for the client.py."""
-from typing import Callable, Optional
 
-from csobclient.v19.http import HTTPClient, HTTPResponse
+import json as jsonlib
+from typing import List, Optional
+
+from csobclient.http import HTTPClient, HTTPResponse
 
 
-def get_fake_http_client(request: Optional[Callable] = None):
-    """Return fake HTTP client."""
-    if request is None:
-        request = lambda *_, **__: HTTPResponse(True, {})
+def build_http_response(
+    code: int = 200,
+    body: bytes = b"",
+    json: Optional[dict] = None,
+    headers: Optional[dict] = None,
+) -> HTTPResponse:
+    """Build HTTP response."""
+    headers = headers or {}
+    if json:
+        body = jsonlib.dumps(json).encode()
+        headers["Content-Type"] = "application/json"
 
-    class _FakeHTTPClient(HTTPClient):
-        # pylint:disable=too-few-public-methods
-        def request(
-            self, url: str, method: str = "post", json: Optional[dict] = None
-        ) -> HTTPResponse:
-            return request(url, method, json)
+    return HTTPResponse(code, body, headers)
 
-    return _FakeHTTPClient()
+
+class FakeHTTPClient(HTTPClient):
+    # pylint:disable=too-few-public-methods
+    """Fake HTTP client."""
+
+    def __init__(self, responses: List[HTTPResponse]) -> None:
+        super().__init__()
+        self.history = []
+        self._responses = responses
+
+    def _request(
+        self,
+        method: str,
+        url: str,
+        json: Optional[dict] = None,
+        headers: Optional[dict] = None,
+    ) -> HTTPResponse:
+        self.history.append(
+            {
+                "_method": "request",
+                "method": method,
+                "url": url,
+                "json": json,
+                "headers": headers,
+            }
+        )
+        return self._responses.pop(0)

@@ -1,22 +1,22 @@
 """Tests for the `init_payment` method."""
-# pylint:disable=duplicate-code
+
 import base64
+
 import pytest
 
 from csobclient.v19 import (
-    FileRSAKey,
+    APIError,
     CachedRSAKey,
-    Client,
     Cart,
     CartItem,
-    HTTPResponse,
-    APIError,
+    Client,
+    FileRSAKey,
 )
-from csobclient.v19.signature import mk_payload, InvalidSignatureError
 from csobclient.v19.dttm import get_dttm
+from csobclient.v19.signature import InvalidSignatureError, mk_payload
+from tests.config import KEY, KEY_PATH
 
-from tests.config import KEY_PATH, KEY
-from . import get_fake_http_client
+from . import FakeHTTPClient, build_http_response
 
 _CLIENT = Client("id", KEY_PATH, KEY_PATH, base_url="url")
 
@@ -97,27 +97,26 @@ def test_invalid_total_amount(amount: int):
 )
 def test_success(pvk, pubk):
     """Test for the successful payment init."""
-
-    def _post_json(*_, **__) -> HTTPResponse:
-        return HTTPResponse(
-            http_success=True,
-            data=mk_payload(
-                KEY,
-                pairs=(
-                    ("payId", "12345"),
-                    ("dttm", get_dttm()),
-                    ("resultCode", 0),
-                    ("resultMessage", "OK"),
-                    ("paymentStatus", 1),
-                ),
-            ),
-        )
-
     client = Client(
         "id",
         pvk,
         pubk,
-        http_client=get_fake_http_client(request=_post_json),
+        http_client=FakeHTTPClient(
+            responses=[
+                build_http_response(
+                    json=mk_payload(
+                        KEY,
+                        pairs=(
+                            ("payId", "12345"),
+                            ("dttm", get_dttm()),
+                            ("resultCode", 0),
+                            ("resultMessage", "OK"),
+                            ("paymentStatus", 1),
+                        ),
+                    )
+                )
+            ]
+        ),
     )
     client.init_payment(
         "oder_no",
@@ -133,21 +132,21 @@ def test_api_error():
 
     API error.
     """
-
-    def _post_json(*_, **__) -> HTTPResponse:
-        return HTTPResponse(
-            http_success=False,
-            data={
-                "resultCode": 100,
-                "resultMessage": "Missing parameter merchantId",
-            },
-        )
-
     client = Client(
         "id",
         KEY_PATH,
         KEY_PATH,
-        http_client=get_fake_http_client(request=_post_json),
+        http_client=FakeHTTPClient(
+            responses=[
+                build_http_response(
+                    400,
+                    json={
+                        "resultCode": 100,
+                        "resultMessage": "Missing parameter merchantId",
+                    },
+                )
+            ]
+        ),
     )
 
     with pytest.raises(APIError):
@@ -165,18 +164,17 @@ def test_api_error():
 )
 def test_invalid_signature(signature: str):
     """Test for the invalid response signature."""
-
-    def _post_json(*_, **__) -> HTTPResponse:
-        return HTTPResponse(
-            http_success=True,
-            data={"signature": signature, "resultCode": 0},
-        )
-
     client = Client(
         "id",
         KEY_PATH,
         KEY_PATH,
-        http_client=get_fake_http_client(request=_post_json),
+        http_client=FakeHTTPClient(
+            responses=[
+                build_http_response(
+                    json={"signature": signature, "resultCode": 0}
+                )
+            ]
+        ),
     )
 
     with pytest.raises(InvalidSignatureError):
